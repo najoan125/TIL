@@ -4,3 +4,6 @@
 [submodule "second_app"]
 	path = second_app
 	url = https://github.com/najoan125/second_app.git
+[submodule "third_app"]
+	path = third_app
+	url = https://github.com/najoan125/third_app.git
