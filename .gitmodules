@@ -7,3 +7,6 @@
 [submodule "third_app"]
 	path = third_app
 	url = https://github.com/najoan125/third_app.git
+[submodule "jsp_til"]
+	path = jsp_til
+	url = https://github.com/najoan125/jsp_til.git
