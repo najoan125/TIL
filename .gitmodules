@@ -10,3 +10,6 @@
 [submodule "jsp_til"]
 	path = jsp_til
 	url = https://github.com/najoan125/jsp_til.git
+[submodule "bamtol_clone_coding"]
+	path = bamtol_clone_coding
+	url = https://github.com/sudar-life/bamtol_market_clone_coding.git
