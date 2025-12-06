@@ -1,47 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppFont extends StatelessWidget {
-  final String data;
-  final TextStyle? style;
-  final TextAlign? textAlign;
-  final TextDirection? textDirection;
-  final Locale? locale;
-  final bool? softWrap;
-  final TextOverflow? overflow;
-  final int? maxLines;
-  final String? semanticsLabel;
-  final TextWidthBasis? textWidthBasis;
-  final TextHeightBehavior? textHeightBehavior;
+  final String text;
+  final Color? color;
+  final double? size;
+  final TextAlign? align;
+  final FontWeight? fontWeight;
 
   const AppFont(
-    this.data, {
+    this.text, {
     super.key,
-    this.style,
-    this.textAlign,
-    this.textDirection,
-    this.locale,
-    this.softWrap,
-    this.overflow,
-    this.maxLines,
-    this.semanticsLabel,
-    this.textWidthBasis,
-    this.textHeightBehavior,
+    this.color = Colors.white,
+    this.align,
+    this.size,
+    this.fontWeight,
   });
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      data,
-      style: style,
-      textAlign: textAlign,
-      textDirection: textDirection,
-      locale: locale,
-      softWrap: softWrap,
-      overflow: overflow,
-      maxLines: maxLines,
-      semanticsLabel: semanticsLabel,
-      textWidthBasis: textWidthBasis,
-      textHeightBehavior: textHeightBehavior,
+      text,
+      textAlign: align,
+      style: GoogleFonts.notoSans(
+        color: color,
+        fontSize: size,
+        fontWeight: fontWeight,
+      ),
     );
   }
 }

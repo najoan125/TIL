@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:my_market_clone/src/controllers/product_controller.dart';
+import 'package:my_market_clone/src/pages/write_page.dart';
+import 'package:my_market_clone/src/models/product.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final productController = Get.find<ProductController>();
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -69,73 +74,130 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: 10,
-        separatorBuilder: (context, index) => const Divider(
-          color: Colors.white24,
-          height: 32,
+      body: Obx(
+        () => ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: productController.products.length,
+          separatorBuilder: (context, index) =>
+              const Divider(color: Colors.white24, height: 32),
+          itemBuilder: (context, index) =>
+              _buildProductItem(productController.products[index]),
         ),
-        itemBuilder: (context, index) => _buildProductItem(index),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (context) => const WritePage()));
+        },
         backgroundColor: const Color(0xffFF6F0F),
-        child: SvgPicture.asset(
+        icon: SvgPicture.asset(
           'assets/svg/icons/plus.svg',
           width: 24,
           height: 24,
-          colorFilter: const ColorFilter.mode(
-            Colors.white,
-            BlendMode.srcIn,
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+        ),
+        label: const Text(
+          '글쓰기',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildProductItem(int index) {
+  Widget _buildProductItem(Product product) {
+    Color statusColor = _getStatusColor(product.status);
+    bool isSold = product.status == ProductStatus.sold;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            width: 110,
-            height: 110,
-            color: Colors.white24,
-            child: const Icon(
-              Icons.image,
-              color: Colors.white54,
-              size: 40,
+        // Product Image with Status Badge
+        Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 110,
+                height: 110,
+                color: Colors.white24,
+                child: _buildProductImage(product),
+              ),
             ),
-          ),
+            // Status Badge
+            if (product.status != ProductStatus.selling)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(8),
+                      bottomLeft: Radius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    product.status.displayName,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            // Sold Overlay
+            if (isSold)
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    child: const Center(
+                      child: Text(
+                        '판매\n완료',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 16),
+        // Product Info
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Product Name
               Text(
-                '상품 ${index + 1}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
+                product.name,
+                style: const TextStyle(fontSize: 16, color: Colors.white),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-              const Text(
-                '청운효자동 · 1시간 전',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.white54,
-                ),
+              // Location and Time
+              Text(
+                '${product.location} · ${product.timeAgo}',
+                style: const TextStyle(fontSize: 13, color: Colors.white54),
               ),
               const SizedBox(height: 4),
+              // Price
               Text(
-                '${(index + 1) * 10000}원',
+                product.price,
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -143,6 +205,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
+              // Chat and Like Icons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -156,9 +219,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
-                    '3',
-                    style: TextStyle(fontSize: 12, color: Colors.white54),
+                  Text(
+                    '${product.chatCount}',
+                    style: const TextStyle(fontSize: 12, color: Colors.white54),
                   ),
                   const SizedBox(width: 8),
                   SvgPicture.asset(
@@ -171,9 +234,9 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
-                    '5',
-                    style: TextStyle(fontSize: 12, color: Colors.white54),
+                  Text(
+                    '${product.likeCount}',
+                    style: const TextStyle(fontSize: 12, color: Colors.white54),
                   ),
                 ],
               ),
@@ -182,5 +245,43 @@ class HomePage extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget _buildProductImage(Product product) {
+    // 새로 등록된 상품 (imageBytes 사용)
+    if (product.imageBytes != null) {
+      return Image.memory(
+        product.imageBytes!,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.image, color: Colors.white54, size: 40);
+        },
+      );
+    }
+
+    // 기존 상품 (imageUrl 사용)
+    if (product.imageUrl != null) {
+      return Image.asset(
+        product.imageUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.image, color: Colors.white54, size: 40);
+        },
+      );
+    }
+
+    // 이미지가 없는 경우
+    return const Icon(Icons.image, color: Colors.white54, size: 40);
+  }
+
+  Color _getStatusColor(ProductStatus status) {
+    switch (status) {
+      case ProductStatus.selling:
+        return Colors.transparent;
+      case ProductStatus.reserved:
+        return const Color(0xffFF6F0F);
+      case ProductStatus.sold:
+        return Colors.grey;
+    }
   }
 }

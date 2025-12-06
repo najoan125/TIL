@@ -8,7 +8,7 @@ class IntroPage extends StatelessWidget {
   Future<void> _completeIntro() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isFirstRun', false);
-    Get.offNamed('/home');
+    Get.offNamed('/login');
   }
 
   @override
